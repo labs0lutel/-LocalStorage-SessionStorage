@@ -1,0 +1,131 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popular Players Table</title>
+</head>
+<body>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Player Name</th>
+                <th>Record</th>
+                <th>Удалить</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <button onclick="clearStorage()">Очистить хранилище</button>
+
+    <script>
+        
+        const players = [
+            { name: 'Lionel Messi', record: '750 Goals' },
+            { name: 'Cristiano Ronaldo', record: '850 Goals' },
+            { name: 'Neymar Jr', record: '450 Goals' }
+        ];
+
+       
+        if (!localStorage.getItem('currentStorage')) {
+            localStorage.setItem('currentStorage', JSON.stringify(players));
+        }
+
+        
+        function updateTable() {
+            const tableBody = document.querySelector('tbody');
+            
+            
+            if (!tableBody) {
+                console.error("Элемент <tbody> не найден.");
+                return;
+            }
+            
+            
+            tableBody.innerHTML = '';
+            
+            
+            let data = JSON.parse(localStorage.getItem('currentStorage')) || [];
+            
+            
+            if (data.length === 0) {
+                const emptyRow = document.createElement('tr');
+                const emptyCell = document.createElement('td');
+                emptyCell.colSpan = 3; 
+                emptyCell.textContent = 'emptyHeader';
+                emptyRow.appendChild(emptyCell);
+                tableBody.appendChild(emptyRow);
+            } else {
+                
+                data.forEach((player, key) => {
+                    const row = document.createElement('tr');
+                    
+                    
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = player.name;
+                    row.appendChild(nameCell);
+                    
+                    
+                    const recordCell = document.createElement('td');
+                    recordCell.textContent = player.record;
+                    row.appendChild(recordCell);
+                    
+                    
+                    const deleteCell = document.createElement('td');
+                    const deleteSpan = document.createElement('span');
+                    deleteSpan.textContent = 'X';
+                    deleteSpan.style.cursor = 'pointer';
+                    deleteSpan.onclick = function() {
+                        deleteItem(key);  
+                    };
+                    deleteCell.appendChild(deleteSpan);
+                    row.appendChild(deleteCell);
+                    
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        
+        function saveItem(key, value) {
+            let data = JSON.parse(localStorage.getItem('currentStorage')) || [];
+            data.push({ name: key, record: value });
+            localStorage.setItem('currentStorage', JSON.stringify(data));
+            updateTable();
+        }
+
+        
+        function deleteItem(key) {
+            const confirmation = confirm("Вы уверены, что хотите удалить эту запись?");
+            if (confirmation) {
+                let data = JSON.parse(localStorage.getItem('currentStorage')) || [];
+                data.splice(key, 1);
+                localStorage.setItem('currentStorage', JSON.stringify(data));
+                updateTable();
+            }
+        }
+
+        
+        function clearStorage() {
+            const confirmation = confirm("Вы уверены, что хотите полностью очистить локальное хранилище?");
+            if (confirmation) {
+                localStorage.removeItem('currentStorage');
+                updateTable();
+            }
+        }
+
+        
+        function getStorage() {
+            const currentStorage = JSON.parse(localStorage.getItem('currentStorage')) || [];
+            localStorage.setItem('currentStorage', JSON.stringify(currentStorage));
+            updateTable();
+        }
+
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            getStorage();  
+        });
+    </script>
+</body>
+</html>
